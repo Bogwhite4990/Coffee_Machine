@@ -1,0 +1,67 @@
+from data import resources, MENU
+
+
+profit = 0
+
+
+def check_for_resources(order_ingredients):
+    """Returns True when order can be made, False if ingredients are insufficient"""
+    is_enough = True
+    for item in order_ingredients:
+        if order_ingredients[item] >= resources[item]:
+            print(f"Sorry there is not enough {item}")
+            is_enough = False
+        return is_enough
+
+
+def coins():
+    """Returns the total calculated from coins inserted."""
+    print("Please insert coins.")
+    total = int(input("How many quarters: ")) * 0.25
+    total += int(input("How many dimes: ")) * 0.10
+    total += int(input("How many pennies: ")) * 0.01
+
+    return total
+
+
+def transaction_successful(money, drink_cost):
+    """Return True when the payment is accepted, or False if the money are insufficient"""
+    if money >= drink_cost:
+        change = round(money - drink_cost, 2)
+        print(f"Here is ${change} in change.")
+        global profit
+        profit += drink_cost
+        return True
+    else:
+        print("Sorry that's not enough money.Money refunded.")
+        return False
+
+
+def make_coffee(drink_name, order_ingredients):
+    """Deduct the required ingredients from the resources."""
+    for item in order_ingredients:
+        resources[item] -= order_ingredients[item]
+    print(f"Here is your {drink_name} ☕ !")
+
+
+next_customer = True
+while next_customer:
+    choice = input("What would you like? (espresso/latte/cappuccino): ").lower()
+
+    # As an operator to shut down the machine.
+    if choice == "off":
+        next_customer = False
+
+    # As an operator to see all the resources that machine has
+    elif choice == "admin":
+        print(f"Water: {resources['water']}ml")
+        print(f"Milk: {resources['milk']}ml")
+        print(f"Coffee: {resources['coffee']}g")
+        print(f"Profit: ${profit}")
+
+    else:
+        drink = MENU[choice]
+        if check_for_resources(drink["ingredients"]):
+            payment = coins()
+            if transaction_successful(payment, drink["cost"]):
+                make_coffee(choice, drink["ingredients"])
